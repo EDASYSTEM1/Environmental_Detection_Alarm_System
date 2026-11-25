@@ -1,21 +1,25 @@
 # ============================================================================
-#  .gitignore —— 只提交源码/约束/脚本/文档，Vivado 工程缓存一律不传
+#  .gitignore —— 只提交「源码 / 约束 / 脚本 / 文档」
+#
+#  维护人：组长（组员不得擅自改规则，见 docs/团队约定.md 第七章）
+#  提交前自检：git status 应只显示你自己改的文件
 # ============================================================================
 
-# ---- Vivado 工程与运行目录 ----
+# ---- Vivado 本地工程与运行目录（用 scripts/create_project.tcl 本地重建）----
 work/
 vivado_proj/
+*.xpr
 *.runs/
 *.cache/
+*.gen/
 *.hw/
 *.sim/
-*.ip_user_files/
-*.gen/
 *.srcs/
-*.xpr
+*.ip_user_files/
+*.hbs/
 .Xil/
 
-# ---- Vivado 日志/中间文件 ----
+# ---- Vivado 日志、缓存与编译产物 ----
 *.jou
 *.log
 *.str
@@ -24,34 +28,47 @@ vivado_proj/
 *.wcfg
 *.dcp
 *.ltx
+*.bit
+*.rpt
 *.backup.*
 usage_statistics_webtalk.*
+webtalk*
+fsm_encoding.os
+clockInfo.txt
 
-# ---- 综合/仿真临时产物 ----
+# ---- 仿真中间产物（Icarus）----
 work_iverilog/
 *.vvp
 *.vcd
 *.fst
 
-# ---- 报告（每次重新生成，不入库）----
-reports/*.rpt
+# ---- 波形工具生成的本地文件（只提交 docs/waveforms 里的成品 PNG）----
+tools/wave/*.vvp
+tools/wave/*.vcd
+tools/wave/*.png
+tools/wave/*.html
 
-# ---- 系统垃圾文件 ----
+# ---- QSPI 镜像与配置报告（本机烧不了 Flash，不需要入库）----
+bitstream/*.bin
+bitstream/*.prm
+
+# ---- IP 核：只提交 .xci 配方，生成产物一律忽略 ----
+ip/*/*
+!ip/*/*.xci
+
+# ---- Python 缓存 / 编辑器 / 系统杂项 ----
+__pycache__/
+*.pyc
+.vscode/
+*.swp
 Thumbs.db
 desktop.ini
 .DS_Store
 
-# ---- 例外：bit 文件和占位文件要入库（.bin 是给 Flash 的，本机烧不进去，不入库）----
-!bitstream/
+# ============================================================================
+#  例外：下面这几样**要**入库（放在最后，覆盖上面的通配规则）
+# ============================================================================
+# top.bit 故意入库（3.7 MB）：本机烧不了 Flash，组员拿到仓库可直接下载验证
 !bitstream/*.bit
-bitstream/*.bin
-bitstream/*.prm
+!bitstream/.gitkeep
 !logs/.gitkeep
-
-# ---- 波形生成中间产物（只提交 docs/waveforms 里的 PNG）----
-tools/wave/*.vvp
-tools/wave/*.vcd
-tools/wave/*.png
-
-# ---- 波形查看器生成的 HTML（本地看，不入库）----
-tools/wave/*.html

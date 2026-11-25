@@ -25,8 +25,7 @@ module tb_alarm;
     wire [3:0]  alarm_level;
     wire [3:0]  alarm_src;
     wire [15:0] led;
-    wire        aud_pwm;
-    wire        aud_sd;
+    wire        buzz;
 
     alarm_ctrl dut (
         .clk           (clk),
@@ -41,11 +40,17 @@ module tb_alarm;
         .alarm_level   (alarm_level),
         .alarm_src     (alarm_src),
         .led           (led),
-        .aud_pwm       (aud_pwm),
-        .aud_sd        (aud_sd)
+        .buzz          (buzz)
     );
 
-    integer errors = 0;
+    integer errors       = 0;
+    integer buzz_toggles = 0;
+    reg     buzz_q       = 1'b0;
+
+    always @(posedge clk) begin
+        buzz_q <= buzz;
+        if (buzz != buzz_q) buzz_toggles = buzz_toggles + 1;
+    end
 
     task check;
         input [255:0] name;
@@ -88,6 +93,7 @@ module tb_alarm;
         do_tick;
         check("normal -> level 0",   alarm_level == 4'd0);
         check("normal -> src 0",     alarm_src == 4'b0000);
+        check("normal -> buzz quiet", buzz == 1'b0);
 
         // --- 2: 超温（上限 46C，实测 48C）---
         temp_x10 = 16'sd480;
@@ -114,11 +120,15 @@ module tb_alarm;
         do_tick;
         check("level2 + buzz on -> LED[8]=1", led[8] == 1'b1);
 
+        // 等两个半周期（2 kHz → 半周期 25000 个时钟），确认真的在翻转
+        repeat (60000) @(posedge clk);
+        check("buzz toggling when enabled", buzz_toggles > 0);
+
         sw = 16'h0CFD;                     // SW[11]=1 静音
         do_tick;
+        repeat (10) @(posedge clk);
         check("muted -> LED[8]=0", led[8] == 1'b0);
-
-        check("AUD_SD always 1", aud_sd == 1'b1);
+        check("muted -> buzz low", buzz == 1'b0);
 
         $display("=====================================================");
         if (errors == 0)

@@ -10,7 +10,7 @@
 //  │                                     sensor_snapshot  ← 数据快照       │
 //  │                                             │                        │
 //  │  SW[15:0] ─────────────────────────────────►│                        │
-//  │                                     alarm_ctrl ──► LED / AUD_PWM     │
+//  │                                     alarm_ctrl ──► LED / BUZZ(Pmod JD)│
 //  │                                             │                        │
 //  │                          ┌──────────────────┴────────────┐           │
 //  │                          ▼                               ▼           │
@@ -56,9 +56,8 @@ module sys_top #(
     output wire        VGA_HS,
     output wire        VGA_VS,
 
-    // ---------------- 音频（蜂鸣器）----------------
-    output wire        AUD_PWM,
-    output wire        AUD_SD
+    // ---------------- Pmod JD（丝印 JXADC）：自制蜂鸣器模块 ----------------
+    output wire        BUZZ
 );
 
     // ========================================================================
@@ -168,7 +167,10 @@ module sys_top #(
     wire [3:0] alarm_level;
     wire [3:0] alarm_src;
 
-    alarm_ctrl u_alarm_ctrl (
+    alarm_ctrl #(
+        .CLK_HZ        (CLK_HZ),
+        .ACTIVE_BUZZER (0)              // 0 = 无源蜂鸣器(方波) / 1 = 有源(电平)
+    ) u_alarm_ctrl (
         .clk           (CLK100MHZ),
         .rst           (rst),
         .sample_tick   (tick_1hz),
@@ -181,8 +183,7 @@ module sys_top #(
         .alarm_level   (alarm_level),
         .alarm_src     (alarm_src),
         .led           (LED),
-        .aud_pwm       (AUD_PWM),
-        .aud_sd        (AUD_SD)
+        .buzz          (BUZZ)
     );
 
     // ========================================================================

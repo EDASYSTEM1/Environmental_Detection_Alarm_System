@@ -18,7 +18,7 @@ if not exist "%IV%"  set "IV=iverilog"
 if not exist "%VVP%" set "VVP=vvp"
 
 rem ---- RTL sources (add new modules here) ----
-set "RTL=top\sys_top.v common\rst_sync.v common\tick_gen.v common\debounce.v common\sensor_snapshot.v common\vga_timing.v modules\m_sensor_th\rtl\th_sensor.v modules\m_sensor_light\rtl\light_sensor.v modules\m_alarm\rtl\alarm_ctrl.v modules\m_disp_oled\rtl\disp_ctrl.v modules\m_disp_vga\rtl\vga_disp.v"
+set "RTL=top\sys_top.v common\rst_sync.v common\tick_gen.v common\debounce.v common\sensor_snapshot.v common\vga_timing.v modules\m_sensor_th\rtl\th_sensor.v modules\m_sensor_light\rtl\light_sensor.v modules\m_alarm\rtl\alarm_ctrl.v modules\m_alarm\rtl\buzz_drv.v modules\m_disp_oled\rtl\disp_ctrl.v modules\m_disp_vga\rtl\vga_disp.v"
 
 if not exist work_iverilog mkdir work_iverilog
 

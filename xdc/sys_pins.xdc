@@ -122,10 +122,18 @@ set_property -dict { PACKAGE_PIN B11   IOSTANDARD LVCMOS33 } [get_ports { VGA_HS
 set_property -dict { PACKAGE_PIN B12   IOSTANDARD LVCMOS33 } [get_ports { VGA_VS }]
 
 ## ============================================================================
-##  音频（蜂鸣器）：AUD_PWM 输出方波，AUD_SD 必须为 1
+##  Pmod JD（板上丝印是 JXADC，第 4 个 Pmod 口）—— 自制蜂鸣器模块
+##
+##  JXADC 的 8 根信号实际是 XA_N/XA_P[1..4]（bank 15，LVCMOS33），
+##  当普通数字 IO 用完全没问题（只要别同时启用 XADC 原语）。
+##
+##  本工程只用 1 根线：
+##      1 脚 = A14 (XA_N[1]) → BUZZ
+##  2 脚 A13 (XA_P[1]) 留空；如果你们的模块信号不在 1 脚，
+##  把下面那行的 A14 换成对应引脚即可（2脚=A13, 3脚=A16, 4脚=A15,
+##  7脚=B17, 8脚=B16, 9脚=A18, 10脚=B18）。
 ## ============================================================================
-set_property -dict { PACKAGE_PIN A11   IOSTANDARD LVCMOS33 } [get_ports { AUD_PWM }]
-set_property -dict { PACKAGE_PIN D12   IOSTANDARD LVCMOS33 } [get_ports { AUD_SD }]
+set_property -dict { PACKAGE_PIN A14   IOSTANDARD LVCMOS33 } [get_ports { BUZZ }]
 
 ## ============================================================================
 ##  Bitstream 配置属性（板载 QSPI Flash：S25FL128S 16 MiB，Quad-SPI x4）

@@ -34,7 +34,7 @@
 | `rst_sync` / `tick_gen` / `debounce` / `sensor_snapshot` / `vga_timing` | `common/` | 组长 | ✅ 已实现 | 复位、1Hz/10Hz/1kHz 节拍、按键消抖、数据快照、VGA 时序 |
 | `th_sensor` | `modules/m_sensor_th/rtl/` | 成员B | ⬜ **空壳** | 恒输出 25.3 ℃ / 55.0 %RH |
 | `light_sensor` | `modules/m_sensor_light/rtl/` | 成员B | ⬜ **空壳** | 恒输出 320 lux |
-| `alarm_ctrl` | `modules/m_alarm/rtl/` | 组长 | 🟢 简化版可用 | LED 显示报警等级/来源，蜂鸣器出声 |
+| `alarm_ctrl` | `modules/m_alarm/rtl/` | 组长 | 🟢 简化版可用 | LED 显示报警等级/来源，**Pmod JD 蜂鸣器**出声 |
 | `disp_ctrl` | `modules/m_disp_oled/rtl/` | 组长 | ⬜ **空壳** | OLED 黑屏、数码管全灭 |
 | `vga_disp` | `modules/m_disp_vga/rtl/` | 成员C | ⬜ **空壳** | 显示器能锁上信号，画面全黑 |
 
@@ -94,8 +94,9 @@ scripts\create_project.bat       # 约 30~60 秒
 │   ├── m_sensor_light/        ← 成员B：光照
 │   │   ├── rtl/light_sensor.v
 │   │   └── sim/tb_light_sensor.v
-│   ├── m_alarm/               ← 组长：报警判定
+│   ├── m_alarm/               ← 组长：报警判定 + 蜂鸣器
 │   │   ├── rtl/alarm_ctrl.v
+│   │   ├── rtl/buzz_drv.v     蜂鸣器驱动（插 Pmod JD，无源/有源可切）
 │   │   └── sim/tb_alarm.v
 │   ├── m_disp_oled/           ← 组长：OLED + 数码管
 │   │   └── rtl/disp_ctrl.v
@@ -161,6 +162,7 @@ scripts\create_project.bat       # 约 30~60 秒
 | 本机烧不了板载 QSPI Flash | 报 `Failure to set flash parameters`（试过 25+ 型号）。**断电后程序不保留**，每次上电要双击 `tools\program_board.bat` 重下载（约 40 秒） |
 | 中文路径 | 会崩，仓库放纯英文路径 |
 | SW[8]/SW[9] | 在 1.8 V bank，XDC 里必须 `LVCMOS18` |
+| 蜂鸣器在 **Pmod JD**（丝印 JXADC） | 信号接 1 脚 = A14；自制模块如果信号在别的脚，改 xdc 那一行即可（对照表见 docs/引脚分配.md） |
 
 ## 八、和上一版（v2）的关系
 

@@ -36,9 +36,17 @@ module sys_tb;
     reg         als_miso = 1'b0;
     wire [3:0]  vga_r, vga_g, vga_b;
     wire        vga_hs, vga_vs;
-    wire        aud_pwm, aud_sd;
+    wire        buzz;
 
-    integer errors = 0;
+    integer errors       = 0;
+    integer buzz_toggles = 0;
+    reg     buzz_q       = 1'b0;
+
+    // 监视蜂鸣器有没有在翻转（有翻转 = 真的在响）
+    always @(posedge clk) begin
+        buzz_q <= buzz;
+        if (buzz != buzz_q) buzz_toggles = buzz_toggles + 1;
+    end
 
     // ---------------- 待测设计 ----------------
     sys_top #(.CLK_HZ(1000)) dut (
@@ -64,8 +72,7 @@ module sys_tb;
         .VGA_B     (vga_b),
         .VGA_HS    (vga_hs),
         .VGA_VS    (vga_vs),
-        .AUD_PWM   (aud_pwm),
-        .AUD_SD    (aud_sd)
+        .BUZZ      (buzz)
     );
 
     // ---------------- 检查任务 ----------------
@@ -118,8 +125,7 @@ module sys_tb;
         check("over-temp -> src temp",   dut.alarm_src == 4'b0001);
         check("LED[3:0] = level",        led[3:0] == 4'd2);
         check("LED[7:4] = src",          led[7:4] == 4'b0001);
-        check("buzzer silent by default", aud_pwm == 1'b0);
-        check("AUD_SD = 1",              aud_sd == 1'b1);
+        check("buzzer silent by default", buzz == 1'b0);
 
         // 5) 按键消抖：按住 BTNC
         btn[0] = 1'b1;
@@ -129,8 +135,9 @@ module sys_tb;
         // 6) 打开蜂鸣器：SW[10]=1 且等级 2 → 允许响
         sw[10] = 1'b1;
         repeat (3) @(posedge dut.tick_1hz);
-        repeat (5) @(posedge clk);
+        repeat (20) @(posedge clk);
         check("buzzer enabled -> LED[8]=1", led[8] == 1'b1);
+        check("buzzer really toggling",     buzz_toggles > 0);
 
         // 7) 抬高温度上限到 50.0C（SW[3:0]=15）→ 25.3C 不再报警
         sw[3:0] = 4'hF;

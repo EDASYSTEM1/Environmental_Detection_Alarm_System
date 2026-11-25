@@ -52,3 +52,6 @@ bitstream/*.prm
 tools/wave/*.vvp
 tools/wave/*.vcd
 tools/wave/*.png
+
+# ---- 波形查看器生成的 HTML（本地看，不入库）----
+tools/wave/*.html

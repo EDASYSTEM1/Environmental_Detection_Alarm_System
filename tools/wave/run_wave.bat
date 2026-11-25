@@ -46,13 +46,20 @@ pushd "%W%" && "%VVP%" wave_oled.vvp && popd
 if errorlevel 1 goto fail
 
 echo.
+echo ===== 生成可交互波形（浏览器打开）=====
+"%PY%" "%W%vcd2html.py" "%W%wave_uart.vcd" "%W%uart.html" "UART 8N1 位时序（0xA5）"
+if errorlevel 1 goto fail
+"%PY%" "%W%vcd2html.py" "%W%wave_oled.vcd" "%W%oled.html" "Pmod OLED SPI 初始化时序"
+if errorlevel 1 goto fail
+echo.
+echo.
 echo ===== 渲染成 PNG =====
 "%PY%" "%W%vcd_wave.py"
 if errorlevel 1 goto fail
 
 echo.
 echo ===== DONE: 图片在 tools\wave\ 下（*.png），
-echo      需要更新报告插图时，把它们复制到 docs\waveforms\ =====
+echo      要自己看波形：双击 tools\wave\uart.html 或 oled.html =====
 endlocal
 exit /b 0
 

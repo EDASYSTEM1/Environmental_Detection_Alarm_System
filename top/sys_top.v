@@ -57,7 +57,10 @@ module sys_top #(
     output wire        VGA_VS,
 
     // ---------------- Pmod JD（丝印 JXADC）：自制蜂鸣器模块 ----------------
-    output wire        BUZZ
+    output wire        BUZZ,
+
+    // ---------------- 板载 USB-UART（串口上报给上位机）----------------
+    output wire        UART_TXD
 );
 
     // ========================================================================
@@ -224,6 +227,25 @@ module sys_top #(
         .vga_b       (VGA_B),
         .vga_hs      (VGA_HS),
         .vga_vs      (VGA_VS)
+    );
+
+    // ========================================================================
+    // 6. 串口上报（每 100 ms 一行，给上位机 / 串口助手）
+    //    115200 8N1，走板载 FTDI 的 UART 通道（和 JTAG 共用一根 USB 线）
+    // ========================================================================
+    report_tx #(
+        .CLK_HZ (CLK_HZ),
+        .BAUD   (115200)
+    ) u_report_tx (
+        .clk           (CLK100MHZ),
+        .rst           (rst),
+        .report_tick   (tick_10hz),
+        .temp_x10      (temp_x10),
+        .humi_x10      (humi_x10),
+        .lux           (lux),
+        .alarm_level   (alarm_level),
+        .sensor_status (sensor_status),
+        .uart_txd      (UART_TXD)
     );
 
 endmodule

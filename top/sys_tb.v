@@ -37,15 +37,21 @@ module sys_tb;
     wire [3:0]  vga_r, vga_g, vga_b;
     wire        vga_hs, vga_vs;
     wire        buzz;
+    wire        uart_txd;
 
     integer errors       = 0;
     integer buzz_toggles = 0;
     reg     buzz_q       = 1'b0;
 
-    // 监视蜂鸣器有没有在翻转（有翻转 = 真的在响）
+    // 串口在上报时是一直在发的，不能断言"空闲为高"，改成断言"确实有翻转"
+    integer uart_toggles = 0;
+    reg     uart_q       = 1'b1;
+
     always @(posedge clk) begin
         buzz_q <= buzz;
         if (buzz != buzz_q) buzz_toggles = buzz_toggles + 1;
+        uart_q <= uart_txd;
+        if (uart_txd != uart_q) uart_toggles = uart_toggles + 1;
     end
 
     // ---------------- 待测设计 ----------------
@@ -72,7 +78,8 @@ module sys_tb;
         .VGA_B     (vga_b),
         .VGA_HS    (vga_hs),
         .VGA_VS    (vga_vs),
-        .BUZZ      (buzz)
+        .BUZZ      (buzz),
+        .UART_TXD  (uart_txd)
     );
 
     // ---------------- 检查任务 ----------------
@@ -126,6 +133,7 @@ module sys_tb;
         check("LED[3:0] = level",        led[3:0] == 4'd2);
         check("LED[7:4] = src",          led[7:4] == 4'b0001);
         check("buzzer silent by default", buzz == 1'b0);
+        check("uart reporting (line toggles)", uart_toggles > 0);
 
         // 5) 按键消抖：按住 BTNC
         btn[0] = 1'b1;

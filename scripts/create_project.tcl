@@ -22,9 +22,17 @@ puts "INFO: project  = $proj_dir"
 create_project -force sys_proj $proj_dir -part xc7a100tcsg324-1
 
 # ---------------------------------------------------------------------------
-# RTL：common/*.v + modules/*/rtl/*.v
+# RTL：top/*.v（排除 *_tb.v） + common/*.v + modules/*/rtl/*.v
+#
+# ⚠️ 曾经踩过的坑：最早这里漏收了 top/sys_top.v，结果工程里根本没有 sys_top，
+#    Vivado 就"自动"把 alarm_ctrl 选成顶层，XDC 90 个端口全部对不上、bitgen 失败。
+#    所以下面除了 glob，还断言 sys_top.v 一定在列表里。
 # ---------------------------------------------------------------------------
 set rtl_files {}
+foreach f [glob -nocomplain [file join $root_dir top *.v]] {
+    if {[string match "*_tb.v" [file tail $f]]} continue
+    lappend rtl_files $f
+}
 foreach f [glob -nocomplain [file join $root_dir common *.v]] {
     lappend rtl_files $f
 }
@@ -34,7 +42,15 @@ foreach d [glob -nocomplain -type d [file join $root_dir modules *]] {
     }
 }
 if {[llength $rtl_files] == 0} {
-    puts "ERROR: no RTL found under common/ or modules/*/rtl/"
+    puts "ERROR: no RTL found under top/ or common/ or modules/*/rtl/"
+    exit 1
+}
+set has_top 0
+foreach f $rtl_files {
+    if {[file tail $f] eq "sys_top.v"} { set has_top 1 }
+}
+if {!$has_top} {
+    puts "ERROR: top/sys_top.v 没被收进 RTL 列表，顶层会错，停止建工程"
     exit 1
 }
 puts "INFO: RTL files ([llength $rtl_files]):"
@@ -70,14 +86,20 @@ add_files -fileset constrs_1 -norecurse $xdc_files
 
 # ---------------------------------------------------------------------------
 # 顶层设置
+#
+# 注意顺序：必须先 update_compile_order，再 set_property top。
+# 反过来的话 Vivado 在"自动层级更新"模式下还没扫出模块树，
+# 会报 CRITICAL WARNING "top module sys_top can not be validated"，
+# 然后自作主张换一个顶层（很容易导致综合出来的东西不是你想要的）。
+# 所以这里先把层级定下来（source_mgmt_mode None = 手动编译顺序），再设顶层。
 # ---------------------------------------------------------------------------
-set_property top sys_top [current_fileset]
-if {[llength $tb_files] > 0} {
-    set_property top sys_tb [get_filesets sim_1]
-}
+set_property source_mgmt_mode None [current_project]
 update_compile_order -fileset sources_1
+set_property top sys_top [current_fileset]
+
 if {[llength $tb_files] > 0} {
     update_compile_order -fileset sim_1
+    set_property top sys_tb [get_filesets sim_1]
 }
 
 puts "INFO: project created: $proj_dir/sys_proj.xpr"

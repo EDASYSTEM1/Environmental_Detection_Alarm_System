@@ -22,7 +22,8 @@
         │                          │                                   │
         │             SW[15:0] ────┘                                   │
         │                          ├──► disp_ctrl ──► Pmod OLED + 8 位数码管
-        │                          └──► vga_disp  ──► 板载 VGA（外接显示器）
+        │                          ├──► vga_disp  ──► 板载 VGA（外接显示器）
+        │                          └──► report_tx ──► 板载 USB-UART ──► 电脑
         └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -37,6 +38,7 @@
 | `alarm_ctrl` | `modules/m_alarm/rtl/` | 组长 | 🟢 简化版可用 | LED 显示报警等级/来源，**Pmod JD 蜂鸣器**出声 |
 | `disp_ctrl` | `modules/m_disp_oled/rtl/` | 组长 | ⬜ **空壳** | OLED 黑屏、数码管全灭 |
 | `vga_disp` | `modules/m_disp_vga/rtl/` | 成员C | ⬜ **空壳** | 显示器能锁上信号，画面全黑 |
+| `uart_tx` / `report_tx` | `modules/m_uart/rtl/` | 组长 | ✅ 已实现 | 每 100 ms 从 USB-UART 发一行 `$ENV,T=+25.3,...` |
 
 **已通过**（本机 Icarus 12.0 实测）：
 
@@ -44,15 +46,29 @@
 ==== TH TEST PASSED ====      温湿度模块接口语义
 ==== LIGHT TEST PASSED ====   光照模块接口语义
 ==== ALARM TEST PASSED ====   报警 4 种判定 + 蜂鸣器门控
-==== SYS TEST PASSED ====     系统联调：复位/节拍/快照/报警/按键
+==== UART TEST PASSED ====    8N1 位时序（发 0xA5 采样回 0xA5）
+==== REPORT TEST PASSED ====  串口帧内容（含负数/超限钳位两帧）
+==== SYS TEST PASSED ====     系统联调：复位/节拍/快照/报警/按键/串口/蜂鸣器
 ```
+
+**Vivado 2026.1 实测（2026-11-25，骨架版全量）**：
+
+| 项目 | 结果 |
+|---|---|
+| 综合 / 实现 / 生成 bit | ✅ 0 errors，0 critical warnings（DRC 0 errors） |
+| **WNS / WHS** | **+4.3527 ns / +0.1561 ns**（100 MHz 收敛，余量 4.35 ns） |
+| 资源 | LUT **275**（0.43%）、FF **195**（0.15%）、BRAM 0、DSP 0、IOB **70**（33.3%） |
+| 产物 | `bitstream/top.bit`、`bitstream/top.bin` |
+
+> 建工程时踩过一个坑（已修）：`create_project.tcl` 的 glob 漏收 `top/sys_top.v`，Vivado 就"自动"
+> 把 `alarm_ctrl` 当顶层，XDC 90 个端口全部对不上、bitgen 直接失败。
+> 现在脚本里加了 `sys_top.v` 存在性断言 + 顶层校验，`build_bitstream.tcl` 也会自检并纠偏。
 
 **还没做**（骨架阶段故意不做）：
 
-- ❌ Vivado 综合/实现/时序（`WNS` 未知，等显示和传感器定稿后统一跑）；
-- ❌ OLED/数码管/VGA 的实际画面；
-- ❌ I2C/SPI 传感器真驱动；
-- ❌ 上板验证（当前所有输出是"安全静态电平"，上板只会亮 LED）。
+- ❌ OLED/数码管/VGA 的实际画面（`disp_ctrl`、`vga_disp` 还是空壳）；
+- ❌ I2C/SPI 传感器真驱动（`th_sensor`、`light_sensor` 还是空壳，输出固定假值）；
+- ❌ 上板验证（bit 已生成，但还没插板实测）。
 
 ## 三、三步上手
 
@@ -64,12 +80,25 @@ git checkout develop
 
 # 2) 先跑仿真，确认环境没问题（约 5 秒）
 scripts\sim_iverilog.bat
-#    看到 4 个 TEST PASSED 就对了
+#    看到 6 个 TEST PASSED 就对了
 
 # 3) 生成 Vivado 工程
 scripts\create_project.bat       # 约 30~60 秒
 #    然后双击 work\sys_proj\sys_proj.xpr 打开
 ```
+
+**看串口上报**（板子跑起来之后）：
+
+1. 板子插着那根 `PROG/UART` microUSB 线；
+2. 电脑「设备管理器 → 端口」里找到新增的 `COMx`（FTDI 通道 B）；
+3. 串口助手设 **115200 / 8 位 / 无校验 / 1 停止位**，就能看到每 100 ms 一行：
+
+```
+$ENV,T=+25.3,H=55.0,L=0320,A=2,S=03
+$ENV,T=+25.3,H=55.0,L=0320,A=2,S=03
+```
+
+（温度/湿度/光照是传感器空壳的假值；`A=` 是报警等级，`S=` 是传感器状态字。）
 
 > ⚠️ **路径必须全英文**：Vivado 2026.1 在中文路径下综合会崩（0xC0000374），
 > 所以克隆到 `E:\fpga_course_design\v3_env_monitor_framework` 这类纯 ASCII 路径下。
@@ -100,8 +129,11 @@ scripts\create_project.bat       # 约 30~60 秒
 │   │   └── sim/tb_alarm.v
 │   ├── m_disp_oled/           ← 组长：OLED + 数码管
 │   │   └── rtl/disp_ctrl.v
-│   └── m_disp_vga/            ← 成员C：VGA
-│       └── rtl/vga_disp.v
+│   ├── m_disp_vga/            ← 成员C：VGA
+│   │   └── rtl/vga_disp.v
+│   └── m_uart/                ← 组长：串口上报
+│       ├── rtl/uart_tx.v      115200 8N1 发送器
+│       └── rtl/report_tx.v    每 100 ms 一帧 ASCII
 ├── xdc/sys_pins.xdc           ← 全部引脚（改引脚只改这里）
 ├── scripts/
 │   ├── create_project.tcl/.bat  一键建工程（glob 自动收文件，新增 .v 不用改脚本）
@@ -109,7 +141,8 @@ scripts\create_project.bat       # 约 30~60 秒
 │   └── sim_iverilog.bat         跑全部仿真
 ├── tools/
 │   ├── hw_program.tcl           下载 bit 到板子
-│   └── program_board.bat        双击下载
+│   ├── program_board.bat        双击下载
+│   └── pc_monitor.py            电脑端串口显示（需要 pyserial）
 ├── docs/
 │   ├── 接口协议.md            ★ 端口/数据格式/开关映射（唯一依据）
 │   ├── 分工与流程.md          ★ 分支、PR、每日流程、三条红线
@@ -200,3 +233,4 @@ Pmod AD2 / DA2 / AD5 / AMP3 / BLE / ESP32 / BT2 / CAM 5C / GYRO / MaxSonar / OLE
 |---|---|
 | 2026-11-25 | 初始化框架：空壳模块 + 顶层连线 + XDC + 4 个脚本 + 3 份文档 + 4 个仿真全 PASS |
 | 2026-11-25 | 蜂鸣器改到自制 Pmod（JD 口）；按 Digilent 官方手册修正 HYGRO/ALS 引脚与 ALS 8 位 ADC 说明 |
+| 2026-11-25 | 新增串口上报（`uart_tx` + `report_tx`，115200 8N1，每 100 ms 一行 ASCII）+ PC 端 `pc_monitor.py`；修掉"Vivado 把子模块当顶层"的建工程坑 |

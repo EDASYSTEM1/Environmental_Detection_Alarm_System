@@ -41,8 +41,9 @@ Thumbs.db
 desktop.ini
 .DS_Store
 
-# ---- 例外：这三个目录要入库 ----
+# ---- 例外：bit 文件和占位文件要入库（.bin 是给 Flash 的，本机烧不进去，不入库）----
 !bitstream/
 !bitstream/*.bit
-!bitstream/*.bin
+bitstream/*.bin
+bitstream/*.prm
 !logs/.gitkeep

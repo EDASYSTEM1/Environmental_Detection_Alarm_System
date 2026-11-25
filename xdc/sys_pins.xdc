@@ -146,6 +146,18 @@ set_property -dict { PACKAGE_PIN B12   IOSTANDARD LVCMOS33 } [get_ports { VGA_VS
 set_property -dict { PACKAGE_PIN A14   IOSTANDARD LVCMOS33 } [get_ports { BUZZ }]
 
 ## ============================================================================
+##  板载 USB-UART —— 串口上报（115200 8N1）
+##
+##  Nexys A7 的 FTDI 芯片有两个通道：A=JTAG（烧板），B=UART。
+##  两个通道共用板子标着 "PROG/UART" 的那一个 microUSB 口，
+##  所以在电脑上会同时出现"一个 JTAG 设备 + 一个 COM 口"，不需要额外接线。
+##
+##  注意方向：FTDI 侧的命名是 uart_rxd_out（FPGA 发出去）/ uart_txd_in（FPGA 收），
+##  我们用到的发送脚是 uart_rxd_out = D4。
+## ============================================================================
+set_property -dict { PACKAGE_PIN D4    IOSTANDARD LVCMOS33 } [get_ports { UART_TXD }]
+
+## ============================================================================
 ##  Bitstream 配置属性（板载 QSPI Flash：S25FL128S 16 MiB，Quad-SPI x4）
 ## ============================================================================
 set_property CONFIG_VOLTAGE 3.3 [current_design]

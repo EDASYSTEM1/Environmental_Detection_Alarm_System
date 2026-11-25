@@ -170,8 +170,33 @@ scripts\create_project.bat       # 约 30~60 秒
 **本版继承它的两个成果**：OLED 在 **JA 口**的引脚与驱动思路、脚本/下载流程。
 按版本规则，v2 保持只读，本版是独立的新版本目录。
 
-## 九、版本
+## 十、本组实际器件清单（已按课程动员 PPT + Digilent 手册核对）
+
+| 器件 | 型号 / 规格 | 接法 | 用途 |
+|---|---|---|---|
+| 开发板 | Digilent **Nexys A7-100T**，XC7A100T-1CSG324C | — | 主控 |
+| Pmod OLED | 128×32 单色 OLED（SSD1306，SPI） | **JA** | 主显示（组长） |
+| Pmod HYGRO | SHTC3 温湿度（6 针 I2C，地址 0x70） | **JB**（SCL=G16, SDA=H14） | 温湿度（成员B） |
+| Pmod ALS | TEMT6000 光敏管 + ADC081S021（6 针 SPI，**8 位** ADC） | **JC**（CS=K1, MISO=J2, SCLK=G6） | 光照（成员B） |
+| 自制蜂鸣器 | 自制 Pmod 模块 | **JD**（丝印 JXADC，信号 A14） | 报警声（组长） |
+| （可能附带）Pmod USBUART | USB 转串口 | 未使用 | 板上已有 FTDI USB-UART，不需要它 |
+
+**课程清单里有、但本组没有发到的模块**（框架里也没有假设它们存在）：
+Pmod AD2 / DA2 / AD5 / AMP3 / BLE / ESP32 / BT2 / CAM 5C / GYRO / MaxSonar / OLEDrgb / CDC1。
+如果后面借到了，按接口协议新增模块即可，`sys_top.v` 加一条例化、xdc 加几行引脚。
+
+**开发板自带、可以直接用的资源**（写报告和扩展功能时有用）：
+
+- 16 拨码开关 + 16 LED + 5 按键；
+- 8 位数码管（2 组 4 位，共阳极，低有效）；
+- **12 位 VGA**（R/G/B 各 4 位）+ HS/VS；
+- 板载单声道 PWM 音频口、板载麦克风、板载 ADT7420 温度传感器（I2C）；
+- 128 MiB DDR2、16 MiB QSPI Flash、microSD、10/100M 以太网、USB HID Host；
+- XADC 模拟信号 Pmod 口（就是 JD，本工程拿来做蜂鸣器了）。
+
+## 十一、版本
 
 | 日期 | 内容 |
 |---|---|
 | 2026-11-25 | 初始化框架：空壳模块 + 顶层连线 + XDC + 4 个脚本 + 3 份文档 + 4 个仿真全 PASS |
+| 2026-11-25 | 蜂鸣器改到自制 Pmod（JD 口）；按 Digilent 官方手册修正 HYGRO/ALS 引脚与 ALS 8 位 ADC 说明 |

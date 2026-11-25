@@ -90,17 +90,27 @@ set_property -dict { PACKAGE_PIN D17   IOSTANDARD LVCMOS33 } [get_ports { OLED_D
 set_property -dict { PACKAGE_PIN E17   IOSTANDARD LVCMOS33 } [get_ports { OLED_RES }]
 
 ## ============================================================================
-##  Pmod JB —— Pmod HYGRO 温湿度（I2C）：1=SCL 2=SDA
-##  上板前请按模块丝印核对 1/2 脚；若模块排列不同，改这里两行即可。
+##  Pmod JB —— Pmod HYGRO 温湿度（6 针 I2C 模块）
+##
+##  ⚠️ 官方手册（Pmod HYGRO Reference Manual, J1 Pinout）：
+##       1=NC  2=NC  3=SCL  4=SDA  5=GND  6=VCC
+##     注意 SCL/SDA **不在 1/2 脚**，第一次配的时候我按 1/2 脚写是错的，已按手册修正。
+##  6 针模块插在 12 针排针的 1~6 脚（上排），所以：
+##       SCL = JB[3] = G16     SDA = JB[4] = H14
 ## ============================================================================
-set_property -dict { PACKAGE_PIN D14   IOSTANDARD LVCMOS33 } [get_ports { HYGRO_SCL }]
-set_property -dict { PACKAGE_PIN F16   IOSTANDARD LVCMOS33 } [get_ports { HYGRO_SDA }]
+set_property -dict { PACKAGE_PIN G16   IOSTANDARD LVCMOS33 } [get_ports { HYGRO_SCL }]
+set_property -dict { PACKAGE_PIN H14   IOSTANDARD LVCMOS33 } [get_ports { HYGRO_SDA }]
 
 ## ============================================================================
-##  Pmod JC —— Pmod ALS 光照（SPI）：1=CS 2=SCLK 3=MISO
+##  Pmod JC —— Pmod ALS 光照（6 针 SPI 模块，板载 ADC081S021，8 位）
+##
+##  ⚠️ 官方手册（Pmod ALS Reference Manual）：
+##       1=~CS  2=NC  3=MISO  4=SCLK  5=GND  6=VCC
+##       读一次 = CS 拉低 + 16 个 SCLK，SCLK 上限 4 MHz
+##       MISO = JC[3] = J2      SCLK = JC[4] = G6      CS = JC[1] = K1
 ## ============================================================================
 set_property -dict { PACKAGE_PIN K1    IOSTANDARD LVCMOS33 } [get_ports { ALS_CS }]
-set_property -dict { PACKAGE_PIN F6    IOSTANDARD LVCMOS33 } [get_ports { ALS_SCLK }]
+set_property -dict { PACKAGE_PIN G6    IOSTANDARD LVCMOS33 } [get_ports { ALS_SCLK }]
 set_property -dict { PACKAGE_PIN J2    IOSTANDARD LVCMOS33 } [get_ports { ALS_MISO }]
 
 ## ============================================================================

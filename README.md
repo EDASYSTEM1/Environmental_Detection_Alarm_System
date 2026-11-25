@@ -64,6 +64,22 @@
 > 把 `alarm_ctrl` 当顶层，XDC 90 个端口全部对不上、bitgen 直接失败。
 > 现在脚本里加了 `sys_top.v` 存在性断言 + 顶层校验，`build_bitstream.tcl` 也会自检并纠偏。
 
+**上板实测（2026-11-25，Nexys A7-100T，板上只插了 OLED）**：
+
+| 项目 | 结果 |
+|---|---|
+| JTAG 下载 | ✅ `PROGRAM_OK`，器件 `xc7a100t_0`（目标 `210292BCFAC0B`） |
+| 串口通路 | ✅ COM19（FTDI 通道 B）收到 **21~26 帧，合格率 100%**，约 10.5 帧/秒 |
+| 帧内容 | `$ENV,T=+25.3,H=55.0,L=0320,A=2,S=03` —— 与设计值完全一致 |
+| 由此证明 | 时钟/复位/节拍/快照/报警/`report_tx`/`uart_tx`/FTDI 这条链在真实芯片上全部正常 |
+| 板上现象 | LED1、LED4 亮（= 等级 2「警告」+ 来源「温度」）；OLED 黑屏（显示模块还是空壳，预期）；无声（蜂鸣器、传感器都没插） |
+
+一键复测（不装 Python 也能跑，走 .NET 自带串口）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\serial_check.ps1
+```
+
 **还没做**（骨架阶段故意不做）：
 
 - ❌ OLED/数码管/VGA 的实际画面（`disp_ctrl`、`vga_disp` 还是空壳）；

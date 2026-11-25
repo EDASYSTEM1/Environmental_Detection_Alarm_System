@@ -1,0 +1,48 @@
+# ============================================================================
+#  .gitignore —— 只提交源码/约束/脚本/文档，Vivado 工程缓存一律不传
+# ============================================================================
+
+# ---- Vivado 工程与运行目录 ----
+work/
+vivado_proj/
+*.runs/
+*.cache/
+*.hw/
+*.sim/
+*.ip_user_files/
+*.gen/
+*.srcs/
+*.xpr
+.Xil/
+
+# ---- Vivado 日志/中间文件 ----
+*.jou
+*.log
+*.str
+*.pb
+*.wdb
+*.wcfg
+*.dcp
+*.ltx
+*.backup.*
+usage_statistics_webtalk.*
+
+# ---- 综合/仿真临时产物 ----
+work_iverilog/
+*.vvp
+*.vcd
+*.fst
+
+# ---- 报告（每次重新生成，不入库）----
+reports/*.rpt
+
+# ---- 系统垃圾文件 ----
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- 例外：这三个目录要入库 ----
+!bitstream/
+!bitstream/*.bit
+!bitstream/*.bin
+!logs/.gitkeep

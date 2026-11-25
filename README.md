@@ -36,7 +36,7 @@
 | `th_sensor` | `modules/m_sensor_th/rtl/` | 成员B | ⬜ **空壳** | 恒输出 25.3 ℃ / 55.0 %RH |
 | `light_sensor` | `modules/m_sensor_light/rtl/` | 成员B | ⬜ **空壳** | 恒输出 320 lux |
 | `alarm_ctrl` | `modules/m_alarm/rtl/` | 组长 | 🟢 简化版可用 | LED 显示报警等级/来源，**Pmod JD 蜂鸣器**出声 |
-| `disp_ctrl` | `modules/m_disp_oled/rtl/` | 组长 | ⬜ **空壳** | OLED 黑屏、数码管全灭 |
+| `disp_ctrl` | `modules/m_disp_oled/rtl/` | 组长 | 🟢 OLED 已实现 | OLED 显示 4 行仪表盘（数码管待做） |
 | `vga_disp` | `modules/m_disp_vga/rtl/` | 成员C | ⬜ **空壳** | 显示器能锁上信号，画面全黑 |
 | `uart_tx` / `report_tx` | `modules/m_uart/rtl/` | 组长 | ✅ 已实现 | 每 100 ms 从 USB-UART 发一行 `$ENV,T=+25.3,...` |
 
@@ -250,3 +250,4 @@ Pmod AD2 / DA2 / AD5 / AMP3 / BLE / ESP32 / BT2 / CAM 5C / GYRO / MaxSonar / OLE
 | 2026-11-25 | 初始化框架：空壳模块 + 顶层连线 + XDC + 4 个脚本 + 3 份文档 + 4 个仿真全 PASS |
 | 2026-11-25 | 蜂鸣器改到自制 Pmod（JD 口）；按 Digilent 官方手册修正 HYGRO/ALS 引脚与 ALS 8 位 ADC 说明 |
 | 2026-11-25 | 新增串口上报（`uart_tx` + `report_tx`，115200 8N1，每 100 ms 一行 ASCII）+ PC 端 `pc_monitor.py`；修掉"Vivado 把子模块当顶层"的建工程坑 |
+| 2026-11-25 | OLED 显示实现：`oled_spi` + `text_engine` + `common/font_rom.v`（`tools/gen_font.py` 生成）；4 行仪表盘上板验证；WNS +3.39 ns，LUT 567（0.89%）|

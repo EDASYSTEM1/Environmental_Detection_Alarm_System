@@ -203,6 +203,7 @@ module sys_top #(
         .lux         (lux),
         .alarm_level (alarm_level),
         .alarm_src   (alarm_src),
+        .sensor_status(sensor_status),
         .oled_cs     (OLED_CS),
         .oled_sdin   (OLED_SDIN),
         .oled_sclk   (OLED_SCLK),

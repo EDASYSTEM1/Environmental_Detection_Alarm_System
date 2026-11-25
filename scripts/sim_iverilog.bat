@@ -7,7 +7,7 @@ rem  Why: local Vivado 2026.1 uses a BASIC license (no xsim simulator),
 rem       so functional simulation goes through Icarus Verilog instead.
 rem
 rem  Usage: double-click, or run  scripts\sim_iverilog.bat
-rem  Pass : six lines "==== XXX TEST PASSED ===="
+rem  Pass : seven lines "==== XXX TEST PASSED ===="
 rem ===========================================================================
 setlocal
 cd /d "%~dp0.."
@@ -18,7 +18,7 @@ if not exist "%IV%"  set "IV=iverilog"
 if not exist "%VVP%" set "VVP=vvp"
 
 rem ---- RTL sources (add new modules here) ----
-set "RTL=top\sys_top.v common\rst_sync.v common\tick_gen.v common\debounce.v common\sensor_snapshot.v common\vga_timing.v modules\m_sensor_th\rtl\th_sensor.v modules\m_sensor_light\rtl\light_sensor.v modules\m_alarm\rtl\alarm_ctrl.v modules\m_alarm\rtl\buzz_drv.v modules\m_disp_oled\rtl\disp_ctrl.v modules\m_disp_vga\rtl\vga_disp.v modules\m_uart\rtl\uart_tx.v modules\m_uart\rtl\report_tx.v"
+set "RTL=top\sys_top.v common\rst_sync.v common\tick_gen.v common\debounce.v common\sensor_snapshot.v common\vga_timing.v common\font_rom.v modules\m_sensor_th\rtl\th_sensor.v modules\m_sensor_light\rtl\light_sensor.v modules\m_alarm\rtl\alarm_ctrl.v modules\m_alarm\rtl\buzz_drv.v modules\m_disp_oled\rtl\disp_ctrl.v modules\m_disp_oled\rtl\oled_spi.v modules\m_disp_oled\rtl\text_engine.v modules\m_disp_vga\rtl\vga_disp.v modules\m_uart\rtl\uart_tx.v modules\m_uart\rtl\report_tx.v"
 
 if not exist work_iverilog mkdir work_iverilog
 
@@ -58,14 +58,21 @@ if errorlevel 1 goto fail
 if errorlevel 1 goto fail
 
 echo.
-echo ===== [6/6] sys_tb : full system smoke test =====
+echo ===== [6/7] sys_tb : full system smoke test =====
 "%IV%" -g2012 -s sys_tb -o work_iverilog\tb_sys.vvp %RTL% top\sys_tb.v
 if errorlevel 1 goto fail
 "%VVP%" work_iverilog\tb_sys.vvp
 if errorlevel 1 goto fail
 
 echo.
-echo ===== DONE: you should see 6 x "TEST PASSED" above =====
+echo ===== [7/7] tb_text_engine : OLED 4-line text buffer =====
+"%IV%" -g2012 -s tb_text_engine -o work_iverilog\tb_text.vvp %RTL% modules\m_disp_oled\sim\tb_text_engine.v
+if errorlevel 1 goto fail
+"%VVP%" work_iverilog\tb_text.vvp
+if errorlevel 1 goto fail
+
+echo.
+echo ===== DONE: you should see 7 x "TEST PASSED" above =====
 endlocal
 exit /b 0
 

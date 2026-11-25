@@ -26,6 +26,7 @@ module vga_disp (
     input  wire        [15:0] lux,
     input  wire        [3:0]  alarm_level,
     input  wire        [3:0]  alarm_src,
+    input  wire        [7:0]  sensor_status, // 快照汇总（v1.3：用于显示 SENSOR FAIL）
     input  wire        [15:0] sw,
     output reg  [3:0]         vga_r,
     output reg  [3:0]         vga_g,

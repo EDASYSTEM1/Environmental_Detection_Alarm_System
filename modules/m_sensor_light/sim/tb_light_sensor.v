@@ -81,7 +81,7 @@ module tb_light_sensor;
 
         check("lux = 320",      lux == 16'd320);
         check("adc_raw = 0",    adc_raw == 12'd0);
-        check("status = 0",     status == 8'h00);
+        check("status = 0",     status == 8'h01);
         check("valid pulse x3", valid_cnt == 3);
 
         $display("=====================================================");

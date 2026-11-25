@@ -61,7 +61,7 @@ module sensor_snapshot #(
                 temp_x10   <= th_temp_x10;
                 humi_x10   <= th_humi_x10;
                 raw_status[7:4] <= th_status[3:0];
-                th_ok      <= (th_status[3:0] == 4'b0000);
+                th_ok      <= (th_status[3:0] == 4'b0001);   // bit0=VALID 才算正常（v1.3 语义）
                 th_miss    <= 8'd0;
             end else if (sample_tick) begin
                 if (th_miss < STALE_TICKS)
@@ -73,7 +73,7 @@ module sensor_snapshot #(
                 lux        <= ls_lux;
                 adc_raw    <= ls_adc_raw;
                 raw_status[3:0] <= ls_status[3:0];
-                ls_ok      <= (ls_status[3:0] == 4'b0000);
+                ls_ok      <= (ls_status[3:0] == 4'b0001);   // bit0=VALID 才算正常（v1.3 语义）
                 ls_miss    <= 8'd0;
             end else if (sample_tick) begin
                 if (ls_miss < STALE_TICKS)

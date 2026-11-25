@@ -222,6 +222,7 @@ module sys_top #(
         .lux         (lux),
         .alarm_level (alarm_level),
         .alarm_src   (alarm_src),
+        .sensor_status (sensor_status),
         .sw          (SW),
         .vga_r       (VGA_R),
         .vga_g       (VGA_G),

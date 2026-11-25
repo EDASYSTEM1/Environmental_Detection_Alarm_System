@@ -69,7 +69,7 @@ module tb_th_sensor;
 
         check("SCL idle high",          scl == 1'b1);
         check("SDA released (z)",       sda === 1'bz);
-        check("status = 0",             status == 8'h00);
+        check("status = 0",             status == 8'h01);
 
         // 打 3 个采样节拍
         for (i = 0; i < 3; i = i + 1) begin
@@ -80,7 +80,7 @@ module tb_th_sensor;
 
         check("temp = 25.3C",           temp_x10 == 16'sd253);
         check("humi = 55.0%",           humi_x10 == 16'd550);
-        check("status = 0",             status == 8'h00);
+        check("status = 0",             status == 8'h01);
         check("valid pulse x3",         valid_cnt == 3);
 
         $display("=====================================================");

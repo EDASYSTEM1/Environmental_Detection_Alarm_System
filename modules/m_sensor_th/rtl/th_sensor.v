@@ -50,14 +50,14 @@ module th_sensor (
         if (rst) begin
             temp_x10 <= STUB_TEMP_X10;
             humi_x10 <= STUB_HUMI_X10;
-            status   <= 8'h00;
+            status   <= 8'h01;   // 0x01 = 已拿到过有效数据、无错误
             valid    <= 1'b0;
         end else begin
             valid <= sample_tick;      // 先占位：采样节拍到就算"采完一帧"
             if (sample_tick) begin
                 temp_x10 <= STUB_TEMP_X10;
                 humi_x10 <= STUB_HUMI_X10;
-                status   <= 8'h00;
+                status   <= 8'h01;   // 0x01 = 已拿到过有效数据、无错误
             end
         end
     end

@@ -47,14 +47,14 @@ module light_sensor (
         if (rst) begin
             adc_raw <= STUB_ADC_RAW;
             lux     <= STUB_LUX;
-            status  <= 8'h00;
+            status  <= 8'h01;   // 0x01 = 已拿到过有效数据、无错误
             valid   <= 1'b0;
         end else begin
             valid <= sample_tick;
             if (sample_tick) begin
                 adc_raw <= STUB_ADC_RAW;
                 lux     <= STUB_LUX;
-                status  <= 8'h00;
+                status  <= 8'h01;   // 0x01 = 已拿到过有效数据、无错误
             end
         end
     end

@@ -47,3 +47,8 @@ desktop.ini
 bitstream/*.bin
 bitstream/*.prm
 !logs/.gitkeep
+
+# ---- 波形生成中间产物（只提交 docs/waveforms 里的 PNG）----
+tools/wave/*.vvp
+tools/wave/*.vcd
+tools/wave/*.png

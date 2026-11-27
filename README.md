@@ -2,7 +2,7 @@
 
 > **课程**：FPGA 课程设计　**板卡**：Digilent Nexys A7-100T（Artix-7 **XC7A100T-1CSG324C**）
 > **工具链**：Vivado 2026.1（`E:\vivado\2026.1\Vivado\bin\vivado.bat`）+ Icarus Verilog（`C:\iverilog\bin`）
-> **仓库形态**：`main`（可交付）/ `develop`（集成）/ `feature/*`（各人）
+> **仓库形态**：`main`（可交付）/ `shy`（集成）/ `feature/*`（各人）
 > **当前状态**：🟡 **框架骨架**（2026-11-25）—— 全部模块已连线、可仿真、可综合，但传感器和显示还是空壳。
 
 ---
@@ -92,7 +92,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\serial_check.ps1
 # 1) 拿代码（仓库地址等组长给；现在只有本地 git 仓库）
 git clone <仓库地址> fpga-env-monitor
 cd fpga-env-monitor
-git checkout develop
+git checkout shy
 
 # 2) 先跑仿真，确认环境没问题（约 5 秒）
 scripts\sim_iverilog.bat
@@ -188,7 +188,7 @@ $ENV,T=+25.3,H=55.0,L=0320,A=2,S=03
 2. `m_sensor_th`：写 I2C 主机（100 kHz）→ SHTC3 读 6 字节 → 换算成 `temp_x10 / humi_x10`；
 3. `m_sensor_light`：写 SPI 读 ADCS7476 → `adc_raw` → 标定成 `lux`；
 4. 把 `sim/tb_th_sensor.v`、`tb_light_sensor.v` 改成真时序测试（建议加 I2C 从机模型 / ADC 模型）；
-5. 分支 `feature/sensor_th`、`feature/sensor_light` 分别提 PR 到 `develop`。
+5. 分支 `feature/sensor_th`、`feature/sensor_light` 分别提 PR 到 `shy`。
 
 ### 成员C（VGA）
 

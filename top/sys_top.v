@@ -213,22 +213,23 @@ module sys_top #(
         .seg         (SEG)
     );
 
-    // 5.2 VGA 外接显示器（成员C）
+    // 5.2 VGA 外接显示器（成员C：PR 申请增补 .btn(btn_db) 供 4 方向键控菜单）
     vga_disp u_disp_vga (
-        .clk         (CLK100MHZ),
-        .rst         (rst),
-        .temp_x10    (temp_x10),
-        .humi_x10    (humi_x10),
-        .lux         (lux),
-        .alarm_level (alarm_level),
-        .alarm_src   (alarm_src),
+        .clk           (CLK100MHZ),
+        .rst           (rst),
+        .temp_x10      (temp_x10),
+        .humi_x10      (humi_x10),
+        .lux           (lux),
+        .alarm_level   (alarm_level),
+        .alarm_src     (alarm_src),
         .sensor_status (sensor_status),
-        .sw          (SW),
-        .vga_r       (VGA_R),
-        .vga_g       (VGA_G),
-        .vga_b       (VGA_B),
-        .vga_hs      (VGA_HS),
-        .vga_vs      (VGA_VS)
+        .sw            (SW),
+        .btn           (btn_db),
+        .vga_r         (VGA_R),
+        .vga_g         (VGA_G),
+        .vga_b         (VGA_B),
+        .vga_hs        (VGA_HS),
+        .vga_vs        (VGA_VS)
     );
 
     // ========================================================================
